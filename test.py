@@ -8,7 +8,7 @@ def main(page: Page):
     provider = GitHubOAuthProvider(
         client_id=os.getenv("GITHUB_CLIENT_ID"),
         client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
-        redirect_url="http://localhost:8550/api/oauth/redirect",
+        redirect_url="http://13.58.90.158:8550/oauth_callback",
     )
 
     def login_button_click(e):
