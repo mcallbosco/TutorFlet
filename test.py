@@ -1,39 +1,39 @@
-import os
+import flet as ft
 
-import flet
-from flet import ElevatedButton, LoginEvent, Page
-from flet.auth.providers import GitHubOAuthProvider
+def main(page: ft.Page):
+    page.title = "Routes Example"
 
-def main(page: Page):
-    provider = GitHubOAuthProvider(
-        client_id=os.getenv("GITHUB_CLIENT_ID"),
-        client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
-        redirect_url="http://13.58.90.158:8550/oauth_callback",
-    )
-
-    def login_button_click(e):
-        page.login(provider, scope=["public_repo"])
-
-    def on_login(e: LoginEvent):
-        if not e.error:
-            toggle_login_buttons()
-
-    def logout_button_click(e):
-        page.logout()
-
-    def on_logout(e):
-        toggle_login_buttons()
-
-    def toggle_login_buttons():
-        login_button.visible = page.auth is None
-        logout_button.visible = page.auth is not None
+    def route_change(route):
+        page.views.clear()
+        page.views.append(
+            ft.View(
+                "/",
+                [
+                    ft.AppBar(title=ft.Text("Flet app"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
+                ],
+            )
+        )
+        if page.route == "/store":
+            page.views.append(
+                ft.View(
+                    "/store",
+                    [
+                        ft.AppBar(title=ft.Text("Store"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
+                    ],
+                )
+            )
         page.update()
 
-    login_button = ElevatedButton("Login with GitHub", on_click=login_button_click)
-    logout_button = ElevatedButton("Logout", on_click=logout_button_click)
-    toggle_login_buttons()
-    page.on_login = on_login
-    page.on_logout = on_logout
-    page.add(login_button, logout_button)
+    def view_pop(view):
+        page.views.pop()
+        top_view = page.views[-1]
+        page.go(top_view.route)
 
-flet.app(target=main, port=8550, view=flet.WEB_BROWSER)
+    page.on_route_change = route_change
+    page.on_view_pop = view_pop
+    page.go(page.route)
+
+
+ft.app(target=main, view=ft.AppView.WEB_BROWSER)
